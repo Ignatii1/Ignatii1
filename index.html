@@ -1,0 +1,313 @@
+<title>Программист 1С — прогресс обучения</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --bg:#FCFBF7; --surface:#FFFFFF; --line:#E6E2D6;
+  --text:#1B1A16; --muted:#77736A; --accent:#E8B404; --track:#EDEAE0;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#131310; --surface:#1B1B17; --line:#2C2C25;
+    --text:#F0EEE6; --muted:#918D82; --accent:#F5C518; --track:#26261F;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131310; --surface:#1B1B17; --line:#2C2C25;
+  --text:#F0EEE6; --muted:#918D82; --accent:#F5C518; --track:#26261F;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font:16px/1.5 var(--sans); -webkit-font-smoothing:antialiased;
+}
+header{
+  position:sticky; top:0; z-index:1; background:var(--bg);
+  border-bottom:1px solid var(--line); padding:20px 20px 14px;
+}
+.wrap{max-width:760px; margin:0 auto}
+h1{margin:0 0 2px; font-size:17px; font-weight:600; letter-spacing:-.01em}
+.sub{margin:0; color:var(--muted); font-size:13px}
+.stat{
+  display:flex; align-items:baseline; gap:10px; margin-top:12px;
+  font-family:var(--mono); font-variant-numeric:tabular-nums;
+}
+.stat b{font-size:26px; font-weight:600; letter-spacing:-.02em}
+.stat span{font-size:13px; color:var(--muted)}
+.track{height:3px; background:var(--track); border-radius:2px; overflow:hidden; margin-top:10px}
+.fill{height:100%; width:0; background:var(--accent); transition:width .18s ease}
+main{max-width:800px; margin:0 auto; padding:8px 20px 64px}
+details{
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:8px; margin-top:8px;
+}
+summary{
+  position:relative; display:grid; grid-template-columns:auto 1fr auto auto;
+  align-items:center; gap:12px; padding:13px 14px; cursor:pointer; list-style:none;
+}
+summary::-webkit-details-marker{display:none}
+summary:focus-visible{outline:2px solid var(--accent); outline-offset:-2px; border-radius:8px}
+.num{
+  font-family:var(--mono); font-size:12px; color:var(--muted);
+  border:1px solid var(--line); border-radius:4px; padding:2px 6px;
+}
+.done .num{background:var(--accent); border-color:var(--accent); color:#1B1A16}
+.name{font-size:15px; font-weight:500}
+.done .name{color:var(--muted); font-weight:400}
+.count{font-family:var(--mono); font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums}
+.chev{color:var(--muted); font-size:13px; transition:transform .15s ease}
+details[open] .chev{transform:rotate(90deg)}
+.mini{position:absolute; left:14px; right:14px; bottom:0; height:2px; background:var(--track)}
+.mini i{display:block; height:100%; width:0; background:var(--accent); transition:width .18s ease}
+ul{list-style:none; margin:0; padding:4px 14px 12px 14px; border-top:1px solid var(--line)}
+li label{display:flex; gap:10px; align-items:flex-start; padding:7px 2px; cursor:pointer}
+input[type=checkbox]{margin:3px 0 0; accent-color:var(--accent); width:15px; height:15px; flex:none}
+input:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+label span{font-size:14.5px}
+input:checked + span{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header><div class="wrap">
+  <h1>Программист 1С: с нуля до профи</h1>
+  <p class="sub">IRONSKILLS · 22 модуля · 9 месяцев</p>
+  <div class="stat"><b id="pct">0%</b><span id="abs"></span></div>
+  <div class="track"><div class="fill" id="bar"></div></div>
+</div></header>
+<main id="app"></main>
+
+<script>
+const M = [
+["Знакомство с системой «1С:Предприятие». Общие механизмы",[
+  "Платформа, конфигурация, информационная база",
+  "Установка платформы и шаблона конфигурации",
+  "Создание информационной базы: пустой и из шаблона",
+  "Перемещение базы, создание копии",
+  "Бесплатная лицензия разработчика 1С"]],
+["Основы программирования",[
+  "Первая программа на встроенном языке",
+  "Переменные и операторы",
+  "Типы данных, примитивные типы (число, строка, дата)",
+  "Условия и циклы",
+  "Процедуры и функции: чем отличаются",
+  "Виды модулей",
+  "Коллекции значений",
+  "Комментарии в коде",
+  "Встроенная справка и синтакс-помощник"]],
+["Хранение справочной информации",[
+  "Константы",
+  "Справочники",
+  "Перечисления",
+  "Планы видов характеристик",
+  "Регистры сведений"]],
+["Объектный подход к программированию",[
+  "Понятие «Объект», ссылка и объект",
+  "Создание, изменение, удаление элементов справочников",
+  "Получение выборки элементов",
+  "Поиск данных в базе",
+  "Чтение и запись значений констант",
+  "Методы объектов"]],
+["Работа с формами",[
+  "Виды интерфейсов, управляемые формы",
+  "Создание и правка формы в визуальном редакторе",
+  "Программное изменение формы: элементы, видимость, оформление",
+  "Вывод изображения на форму",
+  "Вопрос пользователю и ветвление по ответу",
+  "Запрос ввода числа, даты, строки",
+  "Программное открытие форм",
+  "Передача данных между формами",
+  "Асинхронные функции"]],
+["Документы. Отражение хозяйственных операций",[
+  "Назначение документов, отличие от справочника",
+  "Создание и настройка нового вида документа",
+  "Проведение документа и движения",
+  "Регистры накопления: измерения, ресурсы, реквизиты",
+  "Автоматический пересчет сумм в табличной части",
+  "Формирование записей регистров при проведении",
+  "Простая печатная форма, редактор табличного документа"]],
+["Запросы",[
+  "Почему запросы, а не методы объектов",
+  "Устройство запроса, синтаксис языка запросов",
+  "Ограничения запросов в 1С",
+  "Инструмент «Консоль запросов»",
+  "Конструктор запросов",
+  "Данные из справочников и документов",
+  "Физические и виртуальные таблицы, данные из регистров",
+  "Соединение и объединение таблиц",
+  "Временные таблицы",
+  "Пакетный запрос",
+  "Запросы в программном коде",
+  "Обработка результата запроса"]],
+["Оперативный учет. Контроль остатков и учет по партиям",[
+  "Резервирование",
+  "Контроль остатков",
+  "Расчет себестоимости, списание по партиям",
+  "Транзакции",
+  "Виды блокировок, управляемые блокировки",
+  "Задачи оперативного учета из экзамена 1С:Специалист"]],
+["Печатные формы",[
+  "Алгоритм разработки печатной формы",
+  "Вывод в табличный документ",
+  "Вывод в текстовый документ",
+  "Макет в формате Microsoft Word (.docx)",
+  "Логотип, факсимиле подписи, печать организации",
+  "Отправка печатной формы на email",
+  "Прикрепление файла печатной формы к документу"]],
+["Подготовка к 1С:Профессионал по платформе",[
+  "Виды сертификатов 1С",
+  "Как проходит экзамен 1С:Профессионал",
+  "Как проходит экзамен 1С:Специалист",
+  "Как проходит экзамен 1С:Специалист-консультант",
+  "Где можно сдать экзамен",
+  "Проработка материалов для подготовки",
+  "Сдать экзамен 1С:Профессионал"]],
+["Отчеты",[
+  "Способы разработки отчетов в 1С",
+  "Система компоновки данных (СКД): назначение",
+  "Наборы данных для отчета",
+  "Отчет на наборе данных «Запрос»",
+  "Программное формирование набора данных",
+  "Соединение нескольких наборов данных",
+  "Ресурсы отчета",
+  "Параметры отчета",
+  "Расширение языка компоновки данных",
+  "Роли полей отчета",
+  "Вывод картинок в отчет",
+  "Варианты отчета",
+  "Нестандартная расшифровка",
+  "Отправка отчета на email"]],
+["Бухгалтерский учет. План счетов и Регистр бухгалтерии",[
+  "Основы бухгалтерского учета",
+  "План счетов",
+  "Регистр бухгалтерии",
+  "Формирование проводок при проведении документов",
+  "Запросы к регистру бухгалтерии",
+  "Типовые бухгалтерские отчеты",
+  "Задачи раздела «Бухгалтерский учет» экзамена 1С:Специалист"]],
+["Расчет зарплаты. План видов расчета и Регистр расчета",[
+  "Предметная область: начисления и удержания",
+  "План видов расчета",
+  "Регистр расчета",
+  "Расчет заработной платы сотрудников",
+  "Запросы к регистру расчета",
+  "Отчеты по начислениям и удержаниям",
+  "Задачи раздела «Сложные периодические расчеты» экзамена"]],
+["Работа с файлами",[
+  "Выгрузка в txt и csv",
+  "Выгрузка в xlsx",
+  "Выгрузка в xml",
+  "Выгрузка в json",
+  "Загрузка данных из файлов в 1С"]],
+["Динамические списки",[
+  "Как устроен динамический список",
+  "Настройки динамического списка",
+  "Форма подбора товаров в документы",
+  "Отборы в формах списков документов",
+  "Вывод дополнительной информации в списки (цена, остаток, курс)"]],
+["Пользователи и Роли",[
+  "Создание пользователей 1С",
+  "Роль: создание и настройка прав",
+  "Ограничения доступа на уровне записей (RLS)",
+  "Параметры сеанса",
+  "Инструменты анализа прав доступа",
+  "Права доступа в типовых конфигурациях",
+  "Журнал регистрации",
+  "Пользовательские настройки"]],
+["Регламентные задания",[
+  "Создание регламентного задания",
+  "Регламентные и фоновые задания",
+  "Особенности работы в файловом режиме",
+  "Консоль заданий в режиме 1С:Предприятие",
+  "Управление заданиями из кода, настройка расписания"]],
+["Задачи и бизнес-процессы",[
+  "Объекты «Бизнес-процесс» и «Задача»",
+  "Карта маршрута бизнес-процесса",
+  "Адресация задач",
+  "Задачи раздела «Бизнес-процессы» экзамена 1С:Специалист"]],
+["Доработка типовых конфигураций",[
+  "Библиотека стандартных подсистем (БСП)",
+  "Обзор стандартных подсистем",
+  "Часто используемые процедуры и функции БСП",
+  "Дополнительные отчеты и обработки",
+  "Отладка дополнительных отчетов и обработок",
+  "Механизм расширений",
+  "Особенности работы расширений",
+  "Стандарты разработки"]],
+["Интеграция и обмен данными",[
+  "Простой обмен через внешние обработки",
+  "Обмен по правилам XML",
+  "Правила обмена в «Конвертации данных 3.1»",
+  "Обмен через универсальный формат (XDTO)",
+  "Работа с FTP-сервером",
+  "Публикация базы на веб-сервере",
+  "Web-сервисы (SOAP)",
+  "HTTP-сервисы",
+  "Стандартный интерфейс OData",
+  "Интеграция по REST API",
+  "Обмен между базами на типовых конфигурациях",
+  "Практика: telegram, sms, email-рассылки"]],
+["Командная разработка в 1С",[
+  "Создание хранилища конфигурации и подключение к нему",
+  "Пользователи хранилища",
+  "Особенности работы с конфигурацией на поддержке хранилища",
+  "1C:Enterprise Development Tools (EDT)"]],
+["Финальное задание",[
+  "Задачи из экзамена 1С:Специалист по платформе",
+  "Разработка конфигурации для учета на предприятии"]]
+];
+
+const KEY = "1c-progress";
+const done = new Set(JSON.parse(localStorage.getItem(KEY) || "[]"));
+const total = M.reduce((n, m) => n + m[1].length, 0);
+const pct = (d, t) => t ? Math.round(d / t * 100) : 0;
+
+app.innerHTML = M.map(([name, topics], i) => `
+<details>
+  <summary>
+    <span class="num">${String(i + 1).padStart(2, "0")}</span>
+    <span class="name">${name}</span>
+    <span class="count"></span>
+    <span class="chev">›</span>
+    <span class="mini"><i></i></span>
+  </summary>
+  <ul>${topics.map((t, j) =>
+    `<li><label><input type="checkbox" data-id="m${i}.${j}"><span>${t}</span></label></li>`
+  ).join("")}</ul>
+</details>`).join("");
+
+app.querySelectorAll("input").forEach(el => el.checked = done.has(el.dataset.id));
+
+function refresh() {
+  M.forEach(([, topics], i) => {
+    const n = topics.filter((_, j) => done.has(`m${i}.${j}`)).length;
+    const d = app.children[i];
+    d.querySelector(".count").textContent = `${n}/${topics.length}`;
+    d.querySelector(".mini i").style.width = pct(n, topics.length) + "%";
+    d.classList.toggle("done", n === topics.length);
+  });
+  pctEl.textContent = pct(done.size, total) + "%";
+  abs.textContent = `${done.size} из ${total} тем`;
+  bar.style.width = pct(done.size, total) + "%";
+}
+
+app.addEventListener("change", e => {
+  const id = e.target.dataset.id;
+  e.target.checked ? done.add(id) : done.delete(id);
+  localStorage.setItem(KEY, JSON.stringify([...done]));
+  refresh();
+});
+
+const pctEl = document.getElementById("pct");
+refresh();
+
+// ponytail: самопроверка вместо тестового фреймворка — открыть index.html#test
+if (location.hash === "#test") {
+  const ids = M.flatMap(([, t], i) => t.map((_, j) => `m${i}.${j}`));
+  console.assert(pct(0, 10) === 0 && pct(5, 10) === 50 && pct(10, 10) === 100 && pct(0, 0) === 0, "pct");
+  console.assert(new Set(ids).size === total && total > 0, "id тем уникальны");
+  console.assert(M.length === 22, "22 модуля");
+  console.assert(app.querySelectorAll("input").length === total, "все чекбоксы отрисованы");
+  document.title = "tests ok";
+}
+</script>
