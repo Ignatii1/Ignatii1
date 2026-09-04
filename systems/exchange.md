@@ -15,7 +15,7 @@ tags: [email, smtp, hybrid, example]
 # Exchange Server 2019 (on-prem, hybrid)
 
 > ⚠️ **EXAMPLE NOTE** — synthetic, ships with the starter kit to demonstrate the format.
-> Delete it (or run `bootstrap.sh --clean`) before real use.
+> Delete it (`bin/pkm clean-examples`) before real use.
 
 **One-line purpose:** Mailboxes for staff not yet migrated to Exchange Online; SMTP relay for
 line-of-business apps.

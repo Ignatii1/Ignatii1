@@ -34,9 +34,9 @@ graph LR
 ## Single points of failure (≥2 downstream)
 
 - `active-directory` → 2 systems
-- `adcs` → 2 systems
-- `dns` → 2 systems
 - `firewall` → 2 systems
+- `dns` → 2 systems
+- `adcs` → 2 systems
 
 ## No recorded upstream dependencies
 

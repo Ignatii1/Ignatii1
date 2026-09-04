@@ -22,6 +22,7 @@ pkm — work knowledge vault
   pkm conflicts                      Unresolved doc contradictions + untrusted facts
   pkm check                          Lint frontmatter + secret scan
   pkm install-hooks                  Install pre-commit secret scan
+  pkm clean-examples                 Remove the shipped synthetic example notes
 USAGE
 }
 
@@ -151,6 +152,15 @@ case "${1:-}" in
   stats) cmd_stats ;;
   check) cmd_check ;;
   install-hooks) cmd_install_hooks ;;
+  clean-examples)
+    n=0
+    for f in systems/exchange.md incidents/2026-08-14-lob-relay-tls-failure.md \
+             runbooks/rotate-exchange-tls-cert.md; do
+      [ -e "$f" ] && { rg -q 'EXAMPLE NOTE' "$f" && { rm "$f"; echo "removed $f"; n=$((n+1)); }; }
+    done
+    [ "$n" -eq 0 ] && echo "no example notes found (already removed)"
+    python3 bin/reindex.py >/dev/null; python3 bin/genmap.py >/dev/null
+    echo "index and map rebuilt" ;;
   ""|-h|--help|help) usage ;;
   *) echo "unknown: $1"; usage; exit 1 ;;
 esac
