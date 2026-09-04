@@ -22,3 +22,7 @@ credentials*
 *.zip
 *.iso
 *.vhdx
+
+# Python
+__pycache__/
+*.pyc
