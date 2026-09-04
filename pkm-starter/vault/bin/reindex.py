@@ -30,6 +30,10 @@ def parse_frontmatter(path):
         if not m:
             continue
         key, raw = m.group(1), m.group(2).strip()
+        # strip trailing "# comment" (templates ship with inline hints), but never
+        # inside a quoted value where # may be legitimate
+        if not raw.startswith(("'", '"')):
+            raw = re.sub(r"\s+#.*$", "", raw).strip()
         if raw.startswith("[") and raw.endswith("]"):
             inner = raw[1:-1].strip()
             meta[key] = [v.strip().strip("'\"") for v in inner.split(",") if v.strip()]

@@ -4,6 +4,9 @@ id: SYS-exchange
 title: Exchange Server 2019 (on-prem, hybrid)
 systems: [exchange]
 status: active
+tier: 1
+depends_on: [adcs, active-directory, dns, firewall]
+used_by: [lob-apps]
 created: 2026-09-04
 updated: 2026-09-04
 tags: [email, smtp, hybrid, example]

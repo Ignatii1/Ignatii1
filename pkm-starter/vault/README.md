@@ -22,18 +22,32 @@ optimised for one thing: Claude finding the right note fast, without loading the
 ## Setup
 
 ```bash
-bin/pkm install-hooks          # pre-commit secret scan
+bin/pkm install-hooks          # pre-commit secret scan (local git use)
 bin/pkm index                  # build INDEX.md
+bin/pkm map                    # build MAP.md
 bin/pkm stats                  # see what is missing
 ```
 
 Add to your shell: `alias pkm='<path-to-vault>/bin/pkm'`
+
+### If you use Claude Code on the web
+
+The session sees only the committed repo — never your laptop. So:
+
+- **Commit documents to `sources/`** before asking Claude to digest them (or drag a file into
+  the chat and ask Claude to save it there). `sources/` is deliberately *not* git-ignored.
+- Ask Claude to run `bin/pkm check` before it commits; the pre-commit hook only exists in
+  clones where you ran `install-hooks`.
+- Live API calls to an internal helpdesk or monitoring system will not work from the cloud
+  container. Paste or commit exports instead.
 
 ## Daily use
 
 | Situation | Do this |
 |-----------|---------|
 | Something broke | `triage` skill — searches prior art before hypothesising |
+| "How does this all fit together?" | `explain` skill + `MAP.md` |
+| Closed an IntraService ticket | `ticket` skill — extracts the knowledge, drops the noise |
 | Solved something | It writes the incident note; make sure `status: resolved` |
 | Random thought / ticket / log | Paste into `inbox/`, walk away |
 | Big vendor PDF to understand | Drop in `sources/`, run `doc-digest` |
@@ -49,7 +63,10 @@ pkm sys exchange            # every note touching one system
 pkm new incident db-timeout "Orders DB times out under load"
 pkm open                    # open incidents / draft runbooks
 pkm recent 10
+pkm err "TLS negotiation failed"   # search only verbatim error blocks
 pkm index                   # rebuild INDEX.md
+pkm map                     # rebuild MAP.md — dependency graph, blast radius, SPOFs
+pkm conflicts               # unresolved doc contradictions + untrusted facts
 pkm stats                   # counts + systems with no runbook
 pkm check                   # frontmatter lint + secret scan
 ```
@@ -58,7 +75,8 @@ pkm check                   # frontmatter lint + secret scan
 
 Do not try to document everything — that fails every time. Instead:
 
-1. Create profiles for your **top 3 systems** (stubs are fine).
+1. Create profiles for your **top 3 systems** (stubs are fine) and fill in `depends_on:` —
+   then run `bin/pkm map`. The blind spots it lists are your real documentation backlog.
 2. From then on, write an incident note for **every** problem you solve. No exceptions.
 3. Dump anything else into `inbox/`.
 4. Run `review` on Friday.

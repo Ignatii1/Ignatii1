@@ -36,6 +36,26 @@ a licence tier we do not have.
 ### "Explicitly NOT covered"
 Prevents future-you re-reading 200 pages hoping the answer is in there.
 
+## Handling bad documentation
+
+Most vendor and internal documentation is some mix of outdated, contradictory, and wrong. The
+digest is where that gets recorded rather than silently absorbed.
+
+- **Set `trust:` honestly.** `authoritative` (vendor, current version) · `verified-here` (we
+  confirmed it against our actual environment) · `unverified` (plausible, untested) ·
+  `contradicted` (conflicts with another source) · `inferred` (we worked it out, the doc did
+  not say). Most facts start `unverified`, and that is fine — a labelled unknown is safe.
+- **Fill the Contradictions table whenever two sources disagree.** Record both claims and the
+  page/path of each. Never resolve a conflict by quietly preferring one source: if you have
+  not tested it in our environment, you do not know which is right, and picking one creates a
+  confident error that survives for years.
+- **Internal docs written by a predecessor are `unverified` by default**, however authoritative
+  they look. They describe the environment as it was when written.
+- **Date everything.** A fact with no date and no version cannot be aged out later, so it
+  silently becomes permanent.
+- When a doc is simply too poor to digest, say so and record only the few facts worth keeping.
+  A short honest digest beats a long one padded with material you do not trust.
+
 ## Rules
 
 - **Do not restate general product documentation.** If it is in the vendor's search index, it
@@ -52,6 +72,6 @@ Prevents future-you re-reading 200 pages hoping the answer is in there.
 ## Finish
 
 ```bash
-bin/pkm index
+bin/pkm index && bin/pkm conflicts    # conflicts lists every unresolved contradiction
 ```
 Then link the digest from the relevant `systems/` profile — an unlinked reference is orphaned.

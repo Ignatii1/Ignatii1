@@ -8,6 +8,8 @@ created: {{DATE}}
 updated: {{DATE}}
 source: sources/{{SLUG}}.pdf
 source_version:
+trust: unverified     # authoritative | verified-here | unverified | contradicted | inferred
+supersedes:           # ref id this replaces, if any
 tags: []
 ---
 
@@ -31,6 +33,14 @@ tags: []
 
 ## Gotchas / version-specific traps
 - 
+
+## Contradictions found
+<!-- Where this doc disagrees with another doc, or with our vault. NEVER silently pick a
+     winner: record both claims and which one we verified. Unresolved contradictions are
+     the single biggest source of wasted hours in a large doc set. -->
+| Claim here (p.) | Conflicts with | Which is true in our env | How verified |
+|-----------------|----------------|--------------------------|--------------|
+|                 |                |                          |              |
 
 ## Explicitly NOT covered by this doc
 - 

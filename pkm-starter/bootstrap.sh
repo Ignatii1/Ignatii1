@@ -33,6 +33,7 @@ fi
 git init -q
 bin/pkm install-hooks >/dev/null
 bin/pkm index >/dev/null
+bin/pkm map >/dev/null
 git add -A
 git commit -q -m "Initialise work knowledge vault"
 

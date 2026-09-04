@@ -8,6 +8,9 @@ A ready-to-deploy personal knowledge management system designed to be driven by 
 
 ## Deploy
 
+Built for **Claude Code on the web**: `sources/` is committed (not git-ignored) because a
+cloud session can only read what is in the repo.
+
 ```bash
 ./bootstrap.sh ~/work-vault          # keeps the worked examples (recommended first time)
 ./bootstrap.sh ~/work-vault --clean  # empty vault
@@ -25,8 +28,10 @@ vault/
 ├── CLAUDE.md              ← the operating manual, loaded every session. Start here.
 ├── README.md              ← day-to-day usage
 ├── SECURITY.md            ← what must never be committed
-├── .claude/skills/        ← triage, capture, doc-digest, runbook, system-profile, review
-├── bin/pkm                ← CLI: find, new, sys, index, stats, check
+├── .claude/skills/        ← triage, explain, doc-digest, ticket, capture, runbook,
+│                            system-profile, review
+├── bin/pkm                ← CLI: find, err, new, sys, index, map, conflicts, stats, check
+├── MAP.md                 ← generated dependency graph (Mermaid, renders on GitHub)
 ├── templates/             ← note templates with the required frontmatter
 ├── systems/  runbooks/  incidents/  references/  decisions/  contacts/
 ├── inbox/                 ← zero-friction capture

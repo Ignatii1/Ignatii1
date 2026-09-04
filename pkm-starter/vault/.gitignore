@@ -1,9 +1,3 @@
-# Raw source documents — can be huge, often licensed, sometimes sensitive.
-# references/ holds the digest; sources/ holds the original locally only.
-sources/*
-!sources/README.md
-!sources/.gitkeep
-
 # Scratch and local-only notes
 *.local.md
 scratch/
@@ -21,3 +15,10 @@ scratch/
 credentials*
 *_rsa
 *_ed25519
+
+# Large binaries other than documentation sources.
+# NOTE: sources/ IS committed on purpose — see sources/README.md.
+# Claude Code on the web can only read files that are in the repo.
+*.zip
+*.iso
+*.vhdx

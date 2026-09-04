@@ -13,9 +13,12 @@ PATTERNS=(
   'AKIA[0-9A-Z]{16}'
   '(?i)connectionstring\s*[:=].*(pwd|password)='
   '(?i)\bxox[baprs]-[A-Za-z0-9-]{10,}'
+  # Russian-language equivalents — the vault is bilingual, so the scanner must be too
+  '(?i)(пароль|пасс|секрет|ключ|токен)\s*[:=]\s*["'"'"']?[^\s"'"'"'<{(].{5,}'
+  '(?i)(логин|учётка|учетка)\s*[:=]\s*\S+\s*[,;/]\s*(пароль|пасс)'
 )
 
-ALLOW='(1Password|Bitwarden|KeePass|Vault|<REDACTED>|\{\{|example|EXAMPLE|placeholder|NEVER inline|creds:|password manager)'
+ALLOW='(1Password|Bitwarden|KeePass|Vault|<REDACTED>|\{\{|example|EXAMPLE|placeholder|NEVER inline|creds:|password manager|менеджер паролей|см\. 1Password|сброс пароля|смена пароля|срок действия пароля)'
 
 found=0
 for p in "${PATTERNS[@]}"; do

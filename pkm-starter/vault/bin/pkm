@@ -16,7 +16,10 @@ pkm — work knowledge vault
   pkm open                           Open incidents / draft runbooks
   pkm recent [n]                     Most recently updated notes (default 15)
   pkm index                          Rebuild INDEX.md
+  pkm map                            Rebuild MAP.md (dependency graph, blast radius)
+  pkm err <string>                   Search only verbatim error blocks (high precision)
   pkm stats                          Vault health
+  pkm conflicts                      Unresolved doc contradictions + untrusted facts
   pkm check                          Lint frontmatter + secret scan
   pkm install-hooks                  Install pre-commit secret scan
 USAGE
@@ -92,6 +95,24 @@ cmd_check() {
   bin/secret-scan.sh
 }
 
+cmd_conflicts() {
+  echo "── references marked contradicted / unverified ──"
+  rg -l '^trust: (contradicted|unverified)' references 2>/dev/null \
+    | while IFS= read -r f; do
+        printf "  %-8s %-46s %s\n" \
+          "$(rg -m1 -oIN '^trust: (.*)$' -r '$1' "$f")" "$f" \
+          "$(rg -m1 -oIN '^title: (.*)$' -r '$1' "$f")"
+      done
+  echo "── filled contradiction tables ──"
+  rg -l '^## Contradictions found' references 2>/dev/null \
+    | while IFS= read -r f; do
+        rows=$(rg -A20 '^## Contradictions found' "$f" | rg -c '^\| [^ |-]' || true)
+        [ "${rows:-0}" -gt 0 ] && echo "  $f ($rows)"
+      done
+  echo "── notes flagged unverified inline ──"
+  rg -ln '⚠️ unverified' systems runbooks references 2>/dev/null | sed 's/^/  /'
+}
+
 cmd_stats() {
   echo "Notes by type:"
   for d in systems runbooks incidents references decisions contacts; do
@@ -121,9 +142,12 @@ case "${1:-}" in
   new) shift; cmd_new "$@" ;;
   find) shift; cmd_find "$@" ;;
   sys) shift; cmd_sys "$@" ;;
+  err) shift; rg -in --no-heading -g '!INDEX.md' -g '!MAP.md' -A2 -B2 "$*" incidents references 2>/dev/null | head -40 ;;
   open) rg -l '^status: (open|draft)' systems runbooks incidents 2>/dev/null || echo "nothing open" ;;
   recent) shift; find systems runbooks incidents references decisions -name '*.md' -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -"${1:-15}" | cut -d' ' -f2- ;;
   index) python3 bin/reindex.py ;;
+  map) python3 bin/genmap.py ;;
+  conflicts) cmd_conflicts ;;
   stats) cmd_stats ;;
   check) cmd_check ;;
   install-hooks) cmd_install_hooks ;;
