@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bin/pkm:*)",
+      "Bash(rg:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "Read(//**)",
+      "Edit(//**)",
+      "Write(//**)"
+    ],
+    "deny": [
+      "Read(./sources/**)",
+      "Bash(git push --force:*)"
+    ]
+  }
+}

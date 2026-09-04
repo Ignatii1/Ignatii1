@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+# pkm — vault CLI. Keeps bookkeeping out of the context window.
+set -uo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT" || exit 1
+DATE="$(date +%F)"; YEAR="$(date +%Y)"
+
+usage() {
+  cat <<'USAGE'
+pkm — work knowledge vault
+
+  pkm new <type> <slug> [title...]   Create a note from template (type: system|runbook|
+                                     incident|reference|decision|contact)
+  pkm find <query...>                Search all notes, grouped by type
+  pkm sys <slug>                     Everything touching one system
+  pkm open                           Open incidents / draft runbooks
+  pkm recent [n]                     Most recently updated notes (default 15)
+  pkm index                          Rebuild INDEX.md
+  pkm stats                          Vault health
+  pkm check                          Lint frontmatter + secret scan
+  pkm install-hooks                  Install pre-commit secret scan
+USAGE
+}
+
+next_seq() { # next zero-padded sequence for a prefix in a dir
+  local dir="$1" prefix="$2"
+  local n
+  n=$(rg -oIN "^id: ${prefix}-[0-9]{4}-([0-9]{4})$" -r '$1' "$dir" 2>/dev/null | sort -n | tail -1)
+  printf "%04d" $(( 10#${n:-0} + 1 ))
+}
+
+cmd_new() {
+  local type="${1:-}" slug="${2:-}"; shift 2 2>/dev/null || { echo "need: pkm new <type> <slug> [title]"; exit 1; }
+  local title="${*:-$slug}"
+  [ -f "templates/${type}.md" ] || { echo "unknown type '$type' (see templates/)"; exit 1; }
+  local dir file
+  case "$type" in
+    system) dir=systems; file="$dir/$slug.md" ;;
+    runbook) dir=runbooks; file="$dir/$slug.md" ;;
+    incident) dir=incidents; file="$dir/${DATE}-${slug}.md" ;;
+    reference) dir=references; file="$dir/$slug.md" ;;
+    decision) dir=decisions; file="$dir/${DATE}-${slug}.md" ;;
+    contact) dir=contacts; file="$dir/$slug.md" ;;
+  esac
+  [ -e "$file" ] && { echo "exists: $file"; exit 1; }
+  mkdir -p "$dir"
+  local seq; seq=$(next_seq "$dir" "$(echo "$type" | cut -c1-3 | tr '[:lower:]' '[:upper:]')")
+  sed -e "s|{{SLUG}}|$slug|g" -e "s|{{TITLE}}|$title|g" \
+      -e "s|{{DATE}}|$DATE|g" -e "s|{{YEAR}}|$YEAR|g" -e "s|{{SEQ}}|$seq|g" \
+      "templates/${type}.md" > "$file"
+  echo "$file"
+}
+
+cmd_find() {
+  [ $# -gt 0 ] || { echo "need a query"; exit 1; }
+  local q="$*" any=0
+  for d in systems runbooks incidents references decisions contacts inbox; do
+    [ -d "$d" ] || continue
+    local hits; hits=$(rg -il --sortr modified "$q" "$d" 2>/dev/null)
+    [ -z "$hits" ] && continue
+    any=1; echo "── ${d} ──"
+    while IFS= read -r f; do
+      printf "  %-52s %s\n" "$f" "$(rg -m1 -oN '^title: (.*)$' -r '$1' "$f" 2>/dev/null)"
+    done <<< "$hits"
+  done
+  [ "$any" -eq 0 ] && echo "No match for '$q'. The vault has a gap here — worth a note."
+  echo ""
+  echo "Matching lines:"
+  rg -in --max-count 2 -g '!INDEX.md' "$q" systems runbooks incidents references decisions 2>/dev/null | head -30
+}
+
+cmd_sys() {
+  local s="${1:?need a system slug}"
+  echo "── profile ──"; ls systems/"$s".md 2>/dev/null || echo "  ⚠️ no systems/$s.md"
+  echo "── referenced by ──"
+  rg -l "systems:.*\b${s}\b" runbooks incidents references decisions 2>/dev/null \
+    | while IFS= read -r f; do printf "  %-50s %s\n" "$f" "$(rg -m1 -oN '^title: (.*)$' -r '$1' "$f")"; done
+}
+
+cmd_check() {
+  local bad=0
+  echo "── frontmatter lint ──"
+  while IFS= read -r f; do
+    head -1 "$f" | grep -q '^---$' || { echo "  ✗ no frontmatter: $f"; bad=1; continue; }
+    for k in type title status updated; do
+      rg -qN "^${k}:" "$f" || { echo "  ✗ missing '$k': $f"; bad=1; }
+    done
+    rg -qN '^systems: \[\]' "$f" && echo "  ⚠ empty systems (unreachable): $f"
+  done < <(find systems runbooks incidents references decisions contacts -name '*.md' ! -name 'README.md' 2>/dev/null)
+  [ "$bad" -eq 0 ] && echo "  ✅ frontmatter ok"
+  echo "── secrets ──"
+  bin/secret-scan.sh
+}
+
+cmd_stats() {
+  echo "Notes by type:"
+  for d in systems runbooks incidents references decisions contacts; do
+    printf "  %-12s %3d\n" "$d" "$(find "$d" -name '*.md' ! -name 'README.md' 2>/dev/null | wc -l)"
+  done
+  printf "  %-12s %3d  (unprocessed)\n" "inbox" "$(find inbox -type f ! -name 'README.md' 2>/dev/null | wc -l)"
+  echo ""
+  echo "Systems with no runbook (gap):"
+  for f in systems/*.md; do
+    [ -e "$f" ] || continue
+    s=$(basename "$f" .md)
+    rg -qls "systems:.*\b${s}\b" runbooks 2>/dev/null || echo "  - $s"
+  done
+}
+
+cmd_install_hooks() {
+  mkdir -p .git/hooks
+  cat > .git/hooks/pre-commit <<'HOOK'
+#!/usr/bin/env bash
+exec bin/secret-scan.sh
+HOOK
+  chmod +x .git/hooks/pre-commit
+  echo "pre-commit secret scan installed"
+}
+
+case "${1:-}" in
+  new) shift; cmd_new "$@" ;;
+  find) shift; cmd_find "$@" ;;
+  sys) shift; cmd_sys "$@" ;;
+  open) rg -l '^status: (open|draft)' systems runbooks incidents 2>/dev/null || echo "nothing open" ;;
+  recent) shift; find systems runbooks incidents references decisions -name '*.md' -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -"${1:-15}" | cut -d' ' -f2- ;;
+  index) python3 bin/reindex.py ;;
+  stats) cmd_stats ;;
+  check) cmd_check ;;
+  install-hooks) cmd_install_hooks ;;
+  ""|-h|--help|help) usage ;;
+  *) echo "unknown: $1"; usage; exit 1 ;;
+esac

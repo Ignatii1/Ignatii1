@@ -1,0 +1,23 @@
+# Raw source documents — can be huge, often licensed, sometimes sensitive.
+# references/ holds the digest; sources/ holds the original locally only.
+sources/*
+!sources/README.md
+!sources/.gitkeep
+
+# Scratch and local-only notes
+*.local.md
+scratch/
+.DS_Store
+*.swp
+
+# Never commit these, ever
+*.pem
+*.key
+*.pfx
+*.p12
+*.kdbx
+.env
+.env.*
+credentials*
+*_rsa
+*_ed25519
