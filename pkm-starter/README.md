@@ -2,9 +2,18 @@
 
 A ready-to-deploy personal knowledge management system designed to be driven by Claude Code.
 
-> ⚠️ **Do not merge this into `main` of `Ignatii1/Ignatii1`.** That repo is your **public**
-> GitHub profile. This kit is delivered here only as a transport mechanism — deploy it into a
-> separate **private** repo and keep real work notes out of the public one.
+> ⚠️ **Check the destination repo's visibility before putting real notes in it.**
+>
+> ```bash
+> gh repo view <owner>/<repo> --json visibility,isPrivate
+> ```
+>
+> This kit was delivered into `Ignatii1/Ignatii1`, which is a **GitHub profile repo** — the
+> kind whose purpose is to be publicly visible. Even when set to private, that makes it a
+> poor permanent home for work documentation: restoring the public profile card is a single
+> toggle, and flipping it republishes the entire vault *and its git history* at once.
+>
+> Prefer a dedicated private repo, where no such pressure to go public exists.
 
 ## Deploy
 

@@ -3,7 +3,13 @@
 This vault documents production systems. Treat it as **confidential**.
 
 ## Repository
-- **Private repo only.** Verify before every remote add: `gh repo view --json visibility`.
+- **Private repo only.** Verify before the first push, and re-verify after anyone changes
+  repository settings: `gh repo view --json visibility,isPrivate`. Trust that command over
+  the GitHub search API, whose index lags behind visibility changes.
+- **Do not host this in a repo whose purpose is to be public** — a GitHub profile repo
+  (`<user>/<user>`), a docs site repo, or anything with Pages enabled. Private today is not
+  private tomorrow when a single toggle is the only thing standing between the vault and
+  publication, and flipping it exposes the full git history, not just current files.
 - Do not fork into a personal/public org. Do not enable GitHub Pages.
 - If the employer has a policy on where work documentation may live, that policy wins over
   this vault. Check before the first push, not after.
